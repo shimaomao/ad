@@ -1,0 +1,111 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<div class="mb-3">
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th scope="col">User Name</th>
+				<th scope="col">Status</th>
+				<th scope="col">Create Time</th>
+				<th scope="col">Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="item : ${userPage.content}">
+				<td><a th:text="${item.username}" th:href="|${websiteUrl}/admin/user/detail/${item.id}|" target="_blank">user name</a></td>
+				<td th:switch="${item.state}">
+					<span th:case="1" class="badge badge-success">Active</span>
+					<span th:case="0" class="badge badge-secondary">Inactive</span>
+					<span th:case="-1" class="badge badge-danger">Disable</span>
+				</td>
+				<td>
+					<span th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(item.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+				</td>
+				<td>
+					<a href="javascript: void(0)" th:onclick="|openUserModal('disable', '${item.id}')|">Disable</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="text-center" th:if="${userPage.totalElements == 0}">No user found</div>
+</div>
+
+<div th:if="${userPage.totalPages gt 1}">
+	<nav th:with="currentPage = ${userPage.number + 1}, start = ${userPage.totalPages le 5 || currentPage le 3 ? 1 : userPage.totalPages - currentPage le 2 ? userPage.totalPages - 4 : currentPage - 2}, 
+		end = ${userPage.totalPages le 5 || userPage.totalPages - currentPage le 2 ? userPage.totalPages : currentPage le 3 ? 5 : currentPage + 2}">
+	  <ul class="pagination">
+	    <li th:if="${userPage.isFirst()}" class="page-item disabled">
+	      <span class="page-link">Previous</span>
+	    </li>
+	    <li th:unless="${userPage.isFirst()}" class="page-item">
+	      <a th:href="|${websiteUrl}/admin/user/list/${currentPage - 1}|" class="page-link">Previous</a>
+	    </li>
+	    <li th:each="number: ${#numbers.sequence(start, end)}" class="page-item" th:classappend="${currentPage == number} ? 'active' : ''">
+	      <span th:if="${currentPage == number}" class="page-link">[[${number}]]</span>
+	      <a th:unless="${currentPage == number}" th:href="|${websiteUrl}/admin/user/list/${number}|" class="page-link" th:text="${number}">[[${number}]]</a>
+	    </li>
+	    <li th:if="${userPage.isLast()}" class="page-item disabled">
+	      <span class="page-link">Next</span>
+	    </li>
+	    <li th:unless="${userPage.isLast()}" class="page-item">
+	      <a th:href="|${websiteUrl}/admin/user/list/${currentPage + 1}|" class="page-link">Next</a>
+	    </li>
+	  </ul>
+	</nav>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="userModalTitle">Modal title</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="userModalBody">...</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-danger" id="userModalCommit" onclick="userModalSubmit()">Delete</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var modalData = {};
+	function openUserModal(operationType, userId) {
+		modalData = {
+			operationType: operationType,
+			userId: userId
+		};
+		if ('disable' == operationType) {
+			$('#userModalTitle').text('Delete');
+			$('#userModalBody').text('It cannot be undone, are you sure?');
+		}
+		$('#userModal').modal('show');
+	}
+	
+	function userModalSubmit() {
+		$('#userModal').modal('hide');
+		if ('disable' == modalData.operationType) {
+			disableUser(modalData.userId)
+		}
+	}
+	
+	function disableUser(userId) {
+		$.ajax({
+			type: 'POST',
+			url: "/api/user/disable/" + userId,
+			dataType: "json",
+			success: function (result) {
+				window.location.reload();
+			}
+		});
+	}
+</script>
+
+</body>
+</html>

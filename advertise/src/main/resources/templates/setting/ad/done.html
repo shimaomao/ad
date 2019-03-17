@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<style>
+	.ad-setting-steps {
+		color: white
+	}
+</style>
+<div>
+	<div class="mb-3">
+		<h2>All done</h2>
+	</div>
+	<div class="mb-3">You can view it on <a th:text="${advertise.title}" th:href="|${websiteUrl}/ad/detail/${advertise.id}|">title</a></div>
+</div>
+
+</body>
+</html>

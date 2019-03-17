@@ -1,0 +1,66 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<div class="py-5 text-center">
+	<h2>Sign up</h2>
+</div>
+<div class="row">
+	<form class="needs-validation offset-1 col-10 offset-sm-3 col-sm-6 offset-lg-4 col-lg-4" novalidate
+		  action="javascript: register()" autocomplete="off">
+		<div class="mb-3">
+			<label for="username">Email address</label>
+			<input type="email" class="form-control" id="username" name="username" required maxlength=45>
+			<div class="invalid-feedback">Please enter your email.</div>
+		</div>
+		<div class="mb-3">
+			<label for="password">Password</label>
+			<input type="password" class="form-control" id="password" name="password" required pattern=".{6,}">
+			<div class="invalid-feedback">Please enter your password, minimum length 6.</div>
+		</div>
+		<div class="mb-3">
+			<label for="confirmPassword">Confirm password</label>
+			<input type="password" class="form-control" id="confirmPassword" required>
+			<div class="invalid-feedback">Please confirm your password.</div>
+		</div>
+		<button class="btn btn-lg btn-primary btn-block mb-3" type="submit">Sign up</button>
+		<div class="error-message text-danger mb-3"></div>
+	</form>
+</div>
+<div class="text-center">
+	<p class="mt-3 mb-5 text-muted"> Already have an account? Please <a th:href="|${websiteUrl}/login|">login</a></p>
+</div>
+<script>
+	(function () {
+		var password = document.getElementById('password');
+		var confirmPassword = document.getElementById('confirmPassword');
+		function valiteConfirmPassword() {
+			if (password.value != confirmPassword.value) {
+				confirmPassword.setCustomValidity("Please confirm your password.");
+			} else {
+				confirmPassword.setCustomValidity("");
+			}
+		}
+		password.oninput = valiteConfirmPassword;
+		confirmPassword.oninput = valiteConfirmPassword;
+	})();
+	
+	function register() {
+		$('[type=submit]').prop('disabled', true);
+		$('.error-message').text('');
+		$.ajax({
+			type: 'POST',
+			url: "/api/user/signup",
+			data: $('form').serialize(),
+			dataType: "json",
+			success: function (result) {
+				window.location.href = "/signup/emailsent";
+			},
+			error: function (xhr) {
+				$('.error-message').text(xhr.responseJSON.message);
+				$('[type=submit]').prop('disabled', false);
+			}
+		});
+	}
+</script>
+</body>
+</html>

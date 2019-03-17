@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<style>
+	.ad-setting-steps {
+		color: white
+	}
+</style>
+<div>
+	<div class="mb-3">
+		<h2>Step 3: Activation</h2>
+	</div>
+	<div class="ad-setting-steps mb-3">
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 1: Write Ad</span>
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 2: Preview Ad</span>
+		<span class="p-1 mb-2 rounded bg-success mr-2 d-inline-block text-nowrap">Step 3: Activation</span>
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 4: All done</span>
+	</div>
+</div>
+	<div th:replace="~{setting/ad/purchase :: body}"></div>
+</body>
+</html>

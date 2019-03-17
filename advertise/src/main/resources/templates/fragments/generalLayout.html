@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" th:fragment="layout (template, selectedMenu)">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<link rel="icon" th:href="|${websiteUrl}/images/favicon.ico|">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+	<a class="navbar-brand" th:href="${websiteUrl}" th:text="${websiteName}">Website Name</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarCollapse" aria-controls="navbarCollapse"
+			aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarCollapse">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<h2 class="h6 p-2 m-0 text-light" th:if="${!#strings.isEmpty(selectedMenu)}" th:text="${selectedMenu}">Classified Ads</h2>
+			</li>
+		</ul>
+		<div class="form-inline mt-2 mt-md-0">
+			<ul th:if="${user == null}" class="navbar-nav">
+				<li class="nav-item">
+					<a th:href="|${websiteUrl}/login|" class="nav-link">Login</a>
+				</li>
+				<li class="nav-item">
+					<a th:href="|${websiteUrl}/signup|" class="nav-link">Sign up</a>
+				</li>
+				<li class="nav-item">
+					<a th:href="|${websiteUrl}/setting/ad/region|" class="btn btn-outline-success my-2 my-sm-0">Post Ad</a>
+				</li>
+			</ul>
+			<ul th:unless="${user == null}" class="navbar-nav">
+				<li class="nav-item dropdown">
+					<a th:text="${user.username}" class="nav-link dropdown-toggle" th:href="${websiteUrl}" id="settingDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+					<div class="dropdown-menu" aria-labelledby="settingDropdown">
+						<a class="dropdown-item" th:href="|${websiteUrl}/setting/ad/list|">My Account</a>
+						<a class="dropdown-item" th:href="|${websiteUrl}/setting/credit/bitcoin|">Buy Credits</a>
+						<a class="dropdown-item" th:href="|${websiteUrl}/setting/password/update|">Change Password</a>
+						<a class="dropdown-item" th:href="|${websiteUrl}/logout|">Logout</a>
+					</div>
+				</li>
+				<li class="nav-item">
+					<a th:href="|${websiteUrl}/setting/ad/region|" class="btn btn-outline-success my-2 my-sm-0">Post Ad</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+	
+<main role="main" class="container">
+	<th:block th:include="${template}"/>
+</main>
+
+<div th:replace="~{fragments/terms :: body}"></div>
+
+<footer class="text-muted bg-light">
+	<div class="container-fluid p-3 p-md-5 text-center">
+		<ul class="list-inline">
+			<li class="list-inline-item">
+				<a th:href="${websiteUrl}" class="text-muted">Home</a>
+			</li>
+			<li class="list-inline-item">
+				<a th:href="|${websiteUrl}/terms|" class="text-muted">Terms</a>
+			</li>
+			<li class="list-inline-item">
+				<a th:href="|${websiteUrl}/privacy|" class="text-muted">Privacy</a>
+			</li>
+			<li class="list-inline-item">
+				<a th:href="|${websiteUrl}/contact|" class="text-muted">Contact</a>
+			</li>
+			<li class="list-inline-item">
+				<a th:href="|${websiteUrl}/about|" class="text-muted">About</a>
+			</li>
+		</ul>
+		<p>
+			© 2019 [[${websiteDomain}]]
+		</p>
+	</div>
+</footer>
+
+<script>
+	(function () {
+		window.addEventListener('load', function () {
+			// Fetch all the forms we want to apply custom Bootstrap validation styles to
+			var forms = document.getElementsByClassName('needs-validation');
+			// Loop over them and prevent submission
+			var validation = Array.prototype.filter.call(forms, function (form) {
+				form.addEventListener('submit', function (event) {
+					if (form.checkValidity() === false) {
+						event.preventDefault();
+						event.stopPropagation();
+					}
+					form.classList.add('was-validated');
+				}, false);
+			});
+		}, false);
+	})();
+</script>
+
+</body>
+</html>

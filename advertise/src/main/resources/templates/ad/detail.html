@@ -1,0 +1,19 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, ${regions[0].name} + ' ' +  ${advertise.category.name})}">
+<body>
+<nav class="nav-breadcrumb">
+  <ol class="breadcrumb bg-white">
+    <li class="breadcrumb-item"><a th:href="${websiteUrl}">Home</a></li>
+    <li class="breadcrumb-item">
+    	<a th:each="region : ${regions}" th:href="|https://${region.uniqueName}.${websiteDomain}|" th:text="${region.name}">Region</a>
+    </li>
+    <li class="breadcrumb-item">
+    	<a th:each="region : ${regions}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/list/${advertise.category.uniqueName}|" th:text="${advertise.category.name}">Category</a>
+    </li>
+  </ol>
+</nav>
+
+<div th:replace="~{ad/fragment/adDetail :: body}"></div>
+<div class="text-muted small mt-3 mb-1">Note: [[${websiteDomain}]] does not guarantee the authenticity of any ad</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<style>
+	.ad-setting-steps {
+		color: white
+	}
+</style>
+
+<div class="mb-4">
+	<div class="d-inline-block border p-3">
+		<div class="h6">
+			<div th:if="${toTop!=null && toTop.leftTimes>0}">
+				<div class="mb-2">Bump to Top: every [[${toTop.frequency}]] hours, [[${toTop.leftTimes}]] times remaining</div>
+				<div class="mb-2">Next Time Bump to Top : [[${T(com.planx.advertise.util.TimeFormatUtils).format(toTop.nextToTopTime, advertise.timeZone, 'MMM. d H:mm:ss yyyy')}]]</div>
+			</div>
+			<div class="mb-2" th:if="${sponsor!=null}">Sponsor Expires: [[${T(com.planx.advertise.util.TimeFormatUtils).format(sponsor.expireTime, advertise.timeZone, 'MMM. d H:mm:ss yyyy')}]]</div>
+		</div>
+		<a class="btn btn-outline-primary btn-sm" th:href="|${websiteUrl}/setting/ad/purchase/${advertise.id}|">Purchase and Active</a>
+		<a class="btn btn-outline-primary btn-sm ml-3" th:href="|${websiteUrl}/setting/ad/update/${advertise.id}|">Edit</a>
+	</div>
+</div>
+<div th:replace="~{ad/fragment/adDetail :: body}"></div>
+</body>
+</html>

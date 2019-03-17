@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+      <div class="py-5 text-center">
+        <h2 class="pb-3">Sign up</h2>
+        <p th:if="${status=='SUCCESS'}" class="lead">
+        Your email was verified. Please enjoy it.
+        </p>
+        <p th:if="${status=='ERROR'}" class="lead">
+        Server error. Please try again later.
+        </p>
+        <p th:if="${status=='FAILED'}" class="lead">
+        Failed to verified: [[${message}]]
+        </p>
+      </div>
+</body>
+</html>

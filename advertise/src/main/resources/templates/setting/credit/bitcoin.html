@@ -1,0 +1,33 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+	<div class="border-bottom mb-4">
+		<div class="h6 pb-2">Credit: $<span th:text="${#numbers.formatDecimal(credit,0,2)}">0.00</span></div>
+	</div>
+	<div class="row">
+		<div class="offset-1 col-10">
+			<div class="mb-3">
+				<img alt="bitcoin" title="bitcoin" src="/images/credit/bitcoin.svg">
+			</div>
+			<div class="mb-3">
+				<div id="qrcode"></div>
+			</div>
+			<div class="mb-3">
+				<label for="address">Address</label>
+				<input type="text" class="form-control" th:value="${bitcoinAddress}" id="address" name="address" readonly>
+				<div class="mt-1">Simply scan QR Code with your mobile device or copy one in the input box</div>
+			</div>
+			<div class="mb-3">
+				<div class="text-danger">Note: Do not send other Cryptocurrency to a Bitcoin address (BTC)</div>
+			</div>
+		</div>
+	</div>
+	
+<script>
+	(function () {
+		var address = document.getElementById('address').value;
+		$('#qrcode').qrcode(address);
+	})();
+</script>
+</body>
+</html>

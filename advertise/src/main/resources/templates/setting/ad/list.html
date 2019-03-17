@@ -1,0 +1,155 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+
+<div class="border-bottom mb-4">
+	<div class="h6 pb-2">
+		Credit: $<span th:text="${#numbers.formatDecimal(credit,0,2)}">0.00</span>
+		<a class="btn btn-outline-primary btn-sm ml-3" th:href="|${websiteUrl}/setting/credit/bitcoin|">Buy Credit</a>
+	</div>
+</div>
+	
+<div class="text-center mb-3" th:if="${advertisePage.totalElements == 0}">No post found</div>
+	
+<div th:if="${advertisePage.totalElements > 0}" class="d-none d-md-block mb-3">
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th scope="col">Date</th>
+				<th scope="col">Market</th>
+				<th scope="col">Category</th>
+				<th scope="col">Title</th>
+				<th scope="col">Status</th>
+				<th scope="col">Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="item : ${advertisePage.content}">
+				<td th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(item.refreshTime, item.timeZone, 'MMM. d H:mm:ss yyyy')}">07/06/2018</td>
+				<td><span th:each="region : ${item.regions}" th:text="${region.name}">Auburn</span></td>
+				<td th:text="${item.category.name}">Women -> Men</td>
+				<td><a th:text="${item.title}" th:href="|${websiteUrl}/ad/detail/${item.id}|" target="_blank">title</a></td>
+				<td th:switch="${item.state}">
+					<span th:case="1" class="badge badge-success">Live</span>
+					<span th:case="0" class="badge badge-secondary">Draft</span>
+					<span th:case="-1" class="badge badge-danger">Remove by community</span>
+					<span th:case="-2" class="badge badge-warning">Remove by me</span>
+				</td>
+				<td>
+					<a target="_blank" class="p-1 d-inline-block" th:href="|${websiteUrl}/setting/ad/manage/${item.id}|">Manage</a>
+					<a class="p-1 d-inline-block" href="javascript: void(0)" th:onclick="|openAdModal('delete', '${item.id}')|">Delete</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div th:if="${advertisePage.totalElements > 0}" class="d-md-none mb-3">
+	<div th:each="item : ${advertisePage.content}" class="card mb-2" style="width: 100%;">
+		<div class="card-body">
+			<div class="card-title"><a th:text="${item.title}" th:href="|${websiteUrl}/ad/detail/${item.id}|" target="_blank" >Ad Title</a></div>
+			<div>
+				<span>Market:</span>
+				<span th:each="region : ${item.regions}" th:text="${region.name}">Auburn</span>
+			</div>
+			<div>
+				<span>Category:</span>
+				<span th:text="${item.category.name}">Women -> Men</span>
+			</div>
+			<div>
+				<div class="float-right">
+					<span th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(item.refreshTime, item.timeZone, 'MMM. d H:mm:ss yyyy')}" class="text-muted">07/06/2018</span>
+				</div>
+				<div th:switch="${item.state}" class="mb-2 ">
+					<span th:case="1" class="badge badge-success">Live</span>
+					<span th:case="0" class="badge badge-secondary">Draft</span>
+					<span th:case="-1" class="badge badge-danger">Remove by community</span>
+					<span th:case="-2" class="badge badge-warning">Remove by me</span>
+				</div>
+			</div>
+			<div class="text-right">
+				<a target="_blank" class="mr-3" th:href="|${websiteUrl}/setting/ad/manage/${item.id}|">Manage</a>
+				<a href="javascript: void(0)" th:onclick="|openAdModal('delete', '${item.id}')|">Delete</a>
+			</div>
+		</div>
+	</div>
+</div>
+	
+<div th:if="${advertisePage.totalPages gt 1}">
+	<nav th:with="currentPage = ${advertisePage.number + 1}, start = ${advertisePage.totalPages le 5 || currentPage le 3 ? 1 : advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages - 4 : currentPage - 2}, 
+		end = ${advertisePage.totalPages le 5 || advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages : currentPage le 3 ? 5 : currentPage + 2}">
+	  <ul class="pagination">
+	    <li th:if="${advertisePage.isFirst()}" class="page-item disabled">
+	      <span class="page-link">Previous</span>
+	    </li>
+	    <li th:unless="${advertisePage.isFirst()}" class="page-item">
+	      <a th:href="|${websiteUrl}/setting/ad/list/${currentPage - 1}|" class="page-link">Previous</a>
+	    </li>
+	    <li th:each="number: ${#numbers.sequence(start, end)}" class="page-item" th:classappend="${currentPage == number} ? 'active' : ''">
+	      <span th:if="${currentPage == number}" class="page-link">[[${number}]]</span>
+	      <a th:unless="${currentPage == number}" th:href="|${websiteUrl}/setting/ad/list/${number}|" class="page-link" th:text="${number}">[[${number}]]</a>
+	    </li>
+	    <li th:if="${advertisePage.isLast()}" class="page-item disabled">
+	      <span class="page-link">Next</span>
+	    </li>
+	    <li th:unless="${advertisePage.isLast()}" class="page-item">
+	      <a th:href="|${websiteUrl}/setting/ad/list/${currentPage + 1}|" class="page-link">Next</a>
+	    </li>
+	  </ul>
+	</nav>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="adModalTitle">Modal title</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="adModalBody">...</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-danger" id="adModalCommit" onclick="adModalSubmit()">Delete</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var modalData = {};
+	function openAdModal(operationType, advertiseId) {
+		modalData = {
+			operationType: operationType,
+			advertiseId: advertiseId
+		};
+		if ('delete' == operationType) {
+			$('#adModalTitle').text('Delete');
+			$('#adModalBody').text('It cannot be undone, are you sure?');
+		}
+		$('#adModal').modal('show');
+	}
+	
+	function adModalSubmit() {
+		$('#adModal').modal('hide');
+		if ('delete' == modalData.operationType) {
+			deleteAd(modalData.advertiseId)
+		}
+	}
+	
+	function deleteAd(advertiseId) {
+		$.ajax({
+			type: 'POST',
+			url: "/api/ad/delete/" + advertiseId,
+			dataType: "json",
+			success: function (result) {
+				window.location.reload();
+			}
+		});
+	}
+</script>
+
+</body>
+</html>

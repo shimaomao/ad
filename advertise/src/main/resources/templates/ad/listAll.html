@@ -1,0 +1,80 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, ${region.name})}">
+<body>
+<div class="mb-2">
+	<th:block th:each="nearbyRegion, iterStat : ${nearbyRegions}">
+		<a th:if="${nearbyRegion.uniqueName != region.uniqueName}" th:href="|https://${nearbyRegion.uniqueName}.${websiteDomain}/ad/all/list|" th:text="${nearbyRegion.name}"></a>
+		<span th:if="${nearbyRegion.uniqueName == region.uniqueName}" th:text="${nearbyRegion.name}"></span>
+		<span th:if="${!iterStat.last}"> | </span>
+	</th:block>
+</div>
+
+<div class="mb-2">
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/category|">category</a>
+	<span> | </span>
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/list|">top</a>
+	<span> | </span>
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/gallery|">gallery</a>
+</div>
+
+<div class="pb-3 clearfix">
+	<div th:if="${!sponsorAds.isEmpty()}" class="sponsor-float ml-1 d-none d-sm-block">
+		<a th:each="sponsorAd : ${sponsorAds}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/detail/${sponsorAd.id}|" target="_blank" class="sponsor-item">
+			<span th:text="${sponsorAd.title}">Title</span>
+			<span class="mt-1 d-block">
+				<img class="sponsor-img" th:each="media, iterStat : ${sponsorAd.medias}" th:if="${iterStat.index<3 && #strings.startsWith(media.contentType,'image')}" 
+					th:src="${websiteUrl + media.uri}" th:alt="${sponsorAd.title}" th:title="${sponsorAd.title}">
+			</span>
+		</a>
+	</div>
+	<div>
+		<div th:if="${dateAdvertisePage.totalElements == 0}">Congratulations! You can place the first AD here</div>
+		<div th:each="item : ${dateAdvertisePage.content}" class="ad-list">
+			<div th:text="${item.refreshTime}" class="ad-date">Published time</div>
+			<div th:each="ad : ${item.advertises}">
+				<a th:text="${ad.title}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/detail/${ad.id}|" class="inherit-color" target="_blank">Advertise title</a>
+				<span th:text="${ad.category.name}" class="inherit-color ml-3 small">Category</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div th:if="${dateAdvertisePage.totalPages gt 1}">
+	<nav th:with="currentPage = ${dateAdvertisePage.number + 1}, start = ${dateAdvertisePage.totalPages le 5 || currentPage le 3 ? 1 : dateAdvertisePage.totalPages - currentPage le 2 ? dateAdvertisePage.totalPages - 4 : currentPage - 2}, 
+		end = ${dateAdvertisePage.totalPages le 5 || dateAdvertisePage.totalPages - currentPage le 2 ? dateAdvertisePage.totalPages : currentPage le 3 ? 5 : currentPage + 2}">
+	  <ul class="pagination">
+	    <li th:if="${dateAdvertisePage.isFirst()}" class="page-item disabled">
+	      <span class="page-link">Previous</span>
+	    </li>
+	    <li th:unless="${dateAdvertisePage.isFirst()}" class="page-item">
+	      <a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/list/${currentPage - 1}|" class="page-link">Previous</a>
+	    </li>
+	    <li th:each="number: ${#numbers.sequence(start, end)}" class="page-item" th:classappend="${currentPage == number} ? 'active' : ''">
+	      <span th:if="${currentPage == number}" class="page-link">[[${number}]]</span>
+	      <a th:unless="${currentPage == number}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/list/${number}|" class="page-link">[[${number}]]</a>
+	    </li>
+	    <li th:if="${dateAdvertisePage.isLast()}" class="page-item disabled">
+	      <span class="page-link">Next</span>
+	    </li>
+	    <li th:unless="${dateAdvertisePage.isLast()}" class="page-item">
+	      <a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/list/${currentPage + 1}|" class="page-link">Next</a>
+	    </li>
+	  </ul>
+	</nav>
+</div>
+
+<div th:if="${!sponsorAds.isEmpty()}" class="mb-3">
+	<div class="text-muted">Sponsor:</div>
+	<div class="clearfix">
+		<a th:each="sponsorAd : ${sponsorAds}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/detail/${sponsorAd.id}|" target="_blank" class="sponsor-list-item">
+			<span class="d-block float-right">
+				<img class="sponsor-img" th:each="media, iterStat : ${sponsorAd.medias}" th:if="${iterStat.index<3 && #strings.startsWith(media.contentType,'image')}" 
+					th:src="${websiteUrl + media.uri}" th:alt="${sponsorAd.title}" th:title="${sponsorAd.title}">
+			</span>
+			<span class="d-block p-2" th:text="${sponsorAd.title}">Title</span>
+		</a>
+	</div>
+</div>
+
+</body>
+</html>

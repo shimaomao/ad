@@ -1,0 +1,14 @@
+
+<p>You're almost done!</p>
+
+<p>
+	Please verify your email address. 
+	<a th:href="|${websiteUrl}/signup/active/${token}|" target="_blank">Click here to complete your registration</a>
+</p>
+<p>
+	Button not working? Paste the following link into your browser:
+</p>
+<p th:text="|${websiteUrl}/signup/active/${token}|"></p>
+<p>
+	You're receiving this email because you recently created a new [[${websiteName}]] account or added a new email address. If this wasn't  you, please ignore this email.
+</p>

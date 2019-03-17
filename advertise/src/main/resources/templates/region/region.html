@@ -1,0 +1,45 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<style>
+
+@media (max-width: 576px) {
+	.collapse-sub-region .sub-region {
+		display: none;
+	}
+}
+
+.sub-region {
+	display: block;
+}
+</style>
+<div class="col-count col-count-md-2">
+	<div th:each="regionTreeNode0 : ${regionTreeNodes}" class="collapse-sub-region page-break-avoid mb-3">
+		<div th:text="${regionTreeNode0.region.name}" class="top-region h5 border rounded p-1 bg-dark text-white">Country Name</div>
+		<div class="col-count-2 col-count-lg-3 sub-region">
+			<div th:each="regionTreeNode1 : ${regionTreeNode0.children}" class="page-break-avoid">
+				<div th:if="${not #strings.isEmpty(regionTreeNode1.region.uniqueName)}" class="h6 text-danger">
+					<a th:text="${regionTreeNode1.region.name + ' >>'}" th:href="|https://${regionTreeNode1.region.uniqueName}.${websiteDomain}|" class="inherit-color">Region Name</a>
+				</div>
+				<div th:if="${#strings.isEmpty(regionTreeNode1.region.uniqueName)}" th:text="${regionTreeNode1.region.name}" class="h6 text-danger">Region Name</div>
+				<ul class="list-unstyled pl-2">
+					<li th:each="regionTreeNode2 : ${regionTreeNode1.children}" class="pb-1">
+						<a th:text="${regionTreeNode2.region.name}" th:href="|https://${regionTreeNode2.region.uniqueName}.${websiteDomain}|" class="inherit-color">Block Name</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	(function () {
+		$('.top-region').on('click', function (e) {
+			var target = e.target;
+			$(target).parent().toggleClass("collapse-sub-region");
+		});
+	})();
+</script>
+
+</body>
+</html>

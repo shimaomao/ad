@@ -1,0 +1,36 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<div class="py-5 text-center">
+	<h2>Login</h2>
+</div>
+<div class="row">
+	<form class="needs-validation offset-1 col-10 offset-sm-3 col-sm-6 offset-lg-4 col-lg-4" novalidate
+		method="post" action="/login">
+		<div class="mb-3">
+			<label for="username">Username or email address</label>
+			<input type="text" class="form-control" id="username" name="username" required>
+			<div class="invalid-feedback">Please enter your username.</div>
+		</div>
+		<div class="mb-3">
+			<a class="float-right" th:href="|${websiteUrl}/setting/password/forgot|">Forgot password?</a>
+			<label for="password">Password</label>
+			<input type="password" class="form-control" id="password" name="password" required>
+			<div class="invalid-feedback">Please enter your password.</div>
+		</div>
+		<button class="btn btn-lg btn-primary btn-block mb-3" type="submit">Login</button>
+		<div class="error-message text-danger mb-3" th:text="${message}"></div>
+	</form>
+</div>
+<div class="text-center">
+	<p class="mt-3 mb-5 text-muted"> You don't have an account? Please <a th:href="|${websiteUrl}/signup|">sign up</a></p>
+</div>
+<script>
+(function () {
+	$('form').on('change', function () {
+		$('.error-message').text('');
+	});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+
+<div class="border-bottom mb-4">
+	<h1 th:text="${advertise.title}" class="h3 pb-2">Advertise title</h1>
+	<div class="h6 pb-2">Posted: <span th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(advertise.refreshTime, advertise.timeZone, 'MMM. d H:mm:ss yyyy')}">Thu. Aug. 2 07:50:33 2018</span></div>
+</div>
+<div class="ad-detail clearfix">
+	<div class="float-sm-right">
+		<div class="ad-images col-count col-count-lg-2 direction-rtl">
+			<a th:each="media : ${advertise.medias}" th:if="${#strings.startsWith(media.contentType,'image')}" class="ad-image ad-image-sm" target="_blank"
+			   th:href="${websiteUrl + media.uri}">
+				<img th:src="${websiteUrl + media.uri}" th:alt="${advertise.title}" th:title="${advertise.title}" class="img-thumbnail w-100">
+			</a>
+		</div>
+	</div>
+	<p th:utext="${advertise.content}" class="ad-content">Advertise content</p>
+	<ul>
+		<li th:if="${not #strings.isEmpty(advertise.location)}">Location: [[${advertise.location}]]</li>
+		<li th:if="${not #strings.isEmpty(advertise.age)}">age: [[${advertise.age}]]</li>
+	</ul>
+</div>
+<script>
+	$(function () {
+		$('.ad-images').magnificPopup({delegate: 'a', type: 'image', gallery: {enabled: true}});
+	});	
+</script>
+</body>
+</html>

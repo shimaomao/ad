@@ -1,0 +1,16 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<div class="mb-3">
+	<h2>Select a category</h2>
+</div>
+<div class="col-count-2 col-count-md-3 col-count-lg-4">
+	<div th:each="regionCategoryTreeNode0 : ${regionCategoryTreeNodes}" class="page-break-avoid mb-3">
+		<div th:text="${regionCategoryTreeNode0.category.name}" class="h5 border rounded p-1 bg-dark text-white">Category Name</div>
+		<div th:each="regionCategoryTreeNode1 : ${regionCategoryTreeNode0.children}" class="page-break-avoid pl-2">
+			<div class="pb-1"><a th:text="${regionCategoryTreeNode1.category.name}" th:href="|${websiteUrl}/setting/ad/post/${regionCategoryTreeNode1.id}|" class="inherit-color">Sub-category Name</a></div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<div class="mb-3">
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th scope="col">Date</th>
+				<th scope="col">User</th>
+				<th scope="col">Market</th>
+				<th scope="col">Category</th>
+				<th scope="col">Title</th>
+				<th scope="col">Status</th>
+				<th scope="col">Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="item : ${advertisePage.content}">
+				<td th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(item.refreshTime,'yyyy-MM-dd HH:mm:ss')}">07/06/2018</td>
+				<td><a th:text="${item.user.username}" th:href="|${websiteUrl}/admin/user/detail/${item.user.id}|" target="_blank">User name</a></td>
+				<td><span th:each="region : ${item.regions}" th:text="${region.name}">Auburn</span></td>
+				<td th:text="${item.category.name}">Women -> Men</td>
+				<td><a th:text="${item.title}" th:href="|${websiteUrl}/ad/detail/${item.id}|" target="_blank">title</a></td>
+				<td th:switch="${item.state}">
+					<span th:case="1" class="badge badge-success">Live</span>
+					<span th:case="0" class="badge badge-secondary">Draft</span>
+					<span th:case="-1" class="badge badge-danger">Remove by community</span>
+					<span th:case="-2" class="badge badge-warning">Remove by me</span>
+				</td>
+				<td>
+					<a href="javascript: void(0)" th:onclick="|openAdModal('delete', '${item.id}')|">Delete</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="text-center" th:if="${advertisePage.totalElements == 0}">No post found</div>
+</div>
+
+<div th:if="${advertisePage.totalPages gt 1}">
+	<nav th:with="currentPage = ${advertisePage.number + 1}, start = ${advertisePage.totalPages le 5 || currentPage le 3 ? 1 : advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages - 4 : currentPage - 2}, 
+		end = ${advertisePage.totalPages le 5 || advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages : currentPage le 3 ? 5 : currentPage + 2}">
+	  <ul class="pagination">
+	    <li th:if="${advertisePage.isFirst()}" class="page-item disabled">
+	      <span class="page-link">Previous</span>
+	    </li>
+	    <li th:unless="${advertisePage.isFirst()}" class="page-item">
+	      <a th:href="|${websiteUrl}/admin/ad/list/${currentPage - 1}|" class="page-link">Previous</a>
+	    </li>
+	    <li th:each="number: ${#numbers.sequence(start, end)}" class="page-item" th:classappend="${currentPage == number} ? 'active' : ''">
+	      <span th:if="${currentPage == number}" class="page-link">[[${number}]]</span>
+	      <a th:unless="${currentPage == number}" th:href="|${websiteUrl}/admin/ad/list/${number}|" class="page-link" th:text="${number}">[[${number}]]</a>
+	    </li>
+	    <li th:if="${advertisePage.isLast()}" class="page-item disabled">
+	      <span class="page-link">Next</span>
+	    </li>
+	    <li th:unless="${advertisePage.isLast()}" class="page-item">
+	      <a th:href="|${websiteUrl}/admin/ad/list/${currentPage + 1}|" class="page-link">Next</a>
+	    </li>
+	  </ul>
+	</nav>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="adModalTitle">Modal title</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="adModalBody">...</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-danger" id="adModalCommit" onclick="adModalSubmit()">Delete</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var modalData = {};
+	function openAdModal(operationType, advertiseId) {
+		modalData = {
+			operationType: operationType,
+			advertiseId: advertiseId
+		};
+		if ('delete' == operationType) {
+			$('#adModalTitle').text('Delete');
+			$('#adModalBody').text('Are you sure?');
+		}
+		$('#adModal').modal('show');
+	}
+	
+	function adModalSubmit() {
+		$('#adModal').modal('hide');
+		if ('delete' == modalData.operationType) {
+			deleteAd(modalData.advertiseId)
+		}
+	}
+	
+	function deleteAd(advertiseId) {
+		$.ajax({
+			type: 'POST',
+			url: "/api/ad/delete/" + advertiseId,
+			dataType: "json",
+			success: function (result) {
+				window.location.reload();
+			}
+		});
+	}
+</script>
+
+</body>
+</html>

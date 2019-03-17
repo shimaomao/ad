@@ -1,0 +1,94 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, ${region.name})}">
+<body>
+<div class="mb-2">
+	<th:block th:each="nearbyRegion, iterStat : ${nearbyRegions}">
+		<a th:if="${nearbyRegion.uniqueName != region.uniqueName}" th:href="|https://${nearbyRegion.uniqueName}.${websiteDomain}/ad/all/gallery|" th:text="${nearbyRegion.name}"></a>
+		<span th:if="${nearbyRegion.uniqueName == region.uniqueName}" th:text="${nearbyRegion.name}"></span>
+		<span th:if="${!iterStat.last}"> | </span>
+	</th:block>
+</div>
+
+<div class="mb-2">
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/list|">top</a>
+	<span> | </span>
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/gallery|">gallery</a>
+	<span> | </span>
+	<a th:href="|https://${region.uniqueName}.${websiteDomain}/category|">category</a>
+</div>
+
+<div th:if="${advertisePage.totalElements == 0}" class="pb-3">Congratulations! You can place the first AD here</div>
+<div class="row text-center">
+	<div th:each="ad : ${advertisePage.content}" class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
+		<a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/detail/${ad.id}|" class="d-block image-container mb-1" target="_blank">
+			<img th:each="img, iterStat : ${ad.medias}" th:classappend="${iterStat.index == 0} ? '' : 'not-active'" class="img-fluid img-thumbnail mh-100" 
+			th:src="${websiteUrl + img.uri}" th:alt="${ad.title}" th:title="${ad.title}">
+		</a>
+		<div class="small">
+			<a th:text="${#strings.abbreviate(ad.title,45)}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/detail/${ad.id}|" class="d-block" target="_blank">title</a>
+			<span th:text="${T(com.planx.advertise.util.TimeFormatUtils).format(ad.refreshTime, ad.timeZone, 'MMM. d H:mm:ss yyyy')}" class="d-block text-muted">post time</span>
+		</div>
+	</div>             
+</div>
+<div th:if="${advertisePage.totalPages gt 1}">
+	<nav th:with="currentPage = ${advertisePage.number + 1}, start = ${advertisePage.totalPages le 5 || currentPage le 3 ? 1 : advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages - 4 : currentPage - 2}, 
+		end = ${advertisePage.totalPages le 5 || advertisePage.totalPages - currentPage le 2 ? advertisePage.totalPages : currentPage le 3 ? 5 : currentPage + 2}">
+	  <ul class="pagination">
+	    <li th:if="${advertisePage.isFirst()}" class="page-item disabled">
+	      <span class="page-link">Previous</span>
+	    </li>
+	    <li th:unless="${advertisePage.isFirst()}" class="page-item">
+	      <a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/gallery/${currentPage - 1}|" class="page-link">Previous</a>
+	    </li>
+	    <li th:each="number: ${#numbers.sequence(start, end)}" class="page-item" th:classappend="${currentPage == number} ? 'active' : ''">
+	      <span th:if="${currentPage == number}" class="page-link">[[${number}]]</span>
+	      <a th:unless="${currentPage == number}" th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/gallery/${number}|" class="page-link">[[${number}]]</a>
+	    </li>
+	    <li th:if="${advertisePage.isLast()}" class="page-item disabled">
+	      <span class="page-link">Next</span>
+	    </li>
+	    <li th:unless="${advertisePage.isLast()}" class="page-item">
+	      <a th:href="|https://${region.uniqueName}.${websiteDomain}/ad/all/gallery/${currentPage + 1}|" class="page-link">Next</a>
+	    </li>
+	  </ul>
+	</nav>
+</div>
+
+<script>
+
+$(function () {
+	var slideTask;
+	$('.image-container').hover(function () {
+		var imageList = $(this).find('img');
+		var activeIndex = 0;
+		if (imageList.length > 1) {
+			slideTask = setInterval(function () {
+				activeIndex++;
+				if (activeIndex == imageList.length) {
+					activeIndex = 0;
+				}
+				imageList.each(function (index, image) {
+					if (index == activeIndex) {
+						$(image).removeClass('not-active');
+					} else {
+						$(image).addClass('not-active');
+					}
+				});
+			}, 2000);
+		}
+	}, function () {
+		clearInterval(slideTask);
+		var imageList = $(this).find('img');
+		imageList.each(function (index, image) {
+			if (index == 0) {
+				$(image).removeClass('not-active');
+			} else {
+				$(image).addClass('not-active');
+			}
+		});
+	});
+});	
+
+</script>
+</body>
+</html>

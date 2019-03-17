@@ -1,0 +1,165 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/generalLayout :: layout (~{::body}, '')}">
+<body>
+<style>
+	.ad-setting-steps {
+		color: white;
+	}
+	.image-preview {
+		height: 8em;
+		min-height: 5em;
+		min-width: 5em;
+	}
+	.image-preview-delete {
+		position: absolute;
+		right: 0.5em;
+		bottom: 0.5em;
+		cursor: pointer;
+	}
+</style>
+<div>
+	<div class="mb-3">
+		<h2>Step 1: Write Ad</h2>
+	</div>
+	<div class="ad-setting-steps mb-3">
+		<span class="p-1 mb-2 rounded bg-success mr-2 d-inline-block text-nowrap">Step 1: Write Ad</span>
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 2: Preview Ad</span>
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 3: Activation</span>
+		<span class="p-1 mb-2 rounded bg-secondary mr-2 d-inline-block text-nowrap">Step 4: All done</span>
+	</div>
+	<div class="mb-3">
+		<span>Images</span>
+	</div>
+	<div class="mb-3" id="uploadImage">
+		<input id="fileupload" type="file" name="file" multiple>
+	</div>
+	<div class="mb-3">
+		<div class="file-error-message text-danger"></div>
+	</div>
+	<form class="needs-validation" novalidate action="javascript: post()">
+		<div id="imagePreview" class="text-center mb-3">
+		</div>
+		<div class="mb-3">
+			<label for="title">Title</label>
+			<input type="text" class="form-control" id="title" name="title" required maxlength=100>
+			<div class="invalid-feedback">Please enter the title.</div>
+		</div>
+		<div class="mb-3">
+			<label for="title">Content</label>
+			<textarea class="form-control" id="content" name="content" rows=8 required maxlength=1000></textarea>
+			<div class="invalid-feedback">Please enter the content.</div>
+		</div>
+
+		<div class="form-inline mb-3">
+			<label class="mr-2" for="location">Location</label>
+			<input type="text" class="form-control" id="location" name="location" maxlength=45>
+		</div>
+		<div class="form-inline mb-3">
+			<label class="mr-2" for="location">Age</label>
+			<input type="number" class="form-control" id="age" name="age" min="21" required>
+			<div class="invalid-feedback">Age cannot be under 21.</div>
+		</div>
+		<div class="form-group">
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" value="" id="agreeTerms" required> 
+				<label class="form-check-label" for="agreeTerms"> 
+					By placing this ad I agree to the 
+					<a th:href="|${websiteUrl}/terms|">terms of use</a>
+					and 
+					<a th:href="|${websiteUrl}/privacy|">privacy policy</a>
+				</label>
+				<div class="invalid-feedback">You must agree before submitting.</div>
+			</div>
+		</div>
+		<input type="hidden" name="regionCategoryId" th:value="${regionCategory.id}">
+		<button class="btn btn-primary mb-3" type="submit">Next</button>
+		<div class="error-message text-danger mb-3"></div>
+	</form>
+</div>
+
+<script>
+	(function () {
+		var url = '/api/fileStorage/upload';
+		$('#fileupload').fileupload({
+		    url: url,
+		    dataType: 'json',
+		    acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+		    maxFileSize: 2 * 1024 * 1024,
+		    messages: {
+		        maxFileSize: 'File exceeds maximum allowed size of 2MB',
+		        acceptFileTypes: 'File type not allowed'
+		    },
+		    done: function (e, data) {
+		    	var result = data.result;
+		    	if (result.status == 'SUCCESS') {
+		    		var returnData = result.data;
+		    		var preview = $('<div class="position-relative d-inline-block m-1"/>');
+			    	var hiddenInput = $('<input type="hidden" id="imgIds" name="imgIds"/>').prop('value', returnData.id);
+			    	var image = $('<img class="img-thumbnail image-preview"/>').prop('src', returnData.uri);
+			    	var deleteButton = $('<span class="badge badge-danger image-preview-delete">Delete</span>');
+			    	preview.append(hiddenInput).append(image).append(deleteButton);
+			    	$('#imagePreview').append(preview);
+			    	changeUploadButton();
+				} else {
+					$('.error-message').text(result.message);
+					$('[type=submit]').prop('disabled', false);
+				}
+		    },
+		    progressall: function (e, data) {
+		        var progress = parseInt(data.loaded / data.total * 100, 10);
+		        $('#progress .progress-bar').css(
+		            'width',
+		            progress + '%'
+		        );
+		    },
+		    processfail: function (e, data) {
+		    	if (data.files.error) {
+		    		$.each(data.files, function (index) {
+		    			var errorMessage = data.files[index].error;
+		    			if (errorMessage) {
+		    				$('.file-error-message').text(errorMessage);
+		    			}
+			        });
+		    	}
+			}
+		})
+		
+		$('#imagePreview').on('click', '.image-preview-delete', function (e) {
+			var target = e.target;
+			$(target).parent().remove();
+			changeUploadButton();
+		});
+		
+		changeUploadButton();
+		
+		function changeUploadButton() {
+			var length = $("#imagePreview").find("img").length;
+			if (length >= 12) {
+				$('#uploadImage').hide();
+			} else {
+				$('#uploadImage').show();
+			}
+		}
+		
+	})();
+
+	function post() {
+		$('[type=submit]').prop('disabled', true);
+		$('.error-message').text('');
+		$.ajax({
+			type: 'POST',
+			url: "/api/ad/create",
+			data: $('form').serialize(),
+			dataType: "json",
+			success: function (result) {
+				window.location.href = "/setting/ad/preview/" + result.data.id;
+			},
+			error: function (xhr) {
+				$('.error-message').text(xhr.responseJSON.message);
+				$('[type=submit]').prop('disabled', false);
+			}
+		});
+	}
+</script>
+</body>
+</html>
